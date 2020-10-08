@@ -36,67 +36,64 @@ typedef pcl::PointXYZRGB PCType;
 typedef pcl::PointXYZ PCType;
 #endif
 
-
 namespace rviz
 {
   class Display;
   class RenderPanel;
   class VisualizationManager;
-}
+} // namespace rviz
 
-class AnnotationTool: public QWidget
+class AnnotationTool : public QWidget
 {
-Q_OBJECT
- public:
- AnnotationTool( QWidget* parent = 0 );
- virtual ~AnnotationTool();
+  Q_OBJECT
+public:
+  AnnotationTool(QWidget *parent = 0);
+  virtual ~AnnotationTool();
 
+public:
+  visualization_msgs::Marker makeBox(visualization_msgs::InteractiveMarker &msg);
+  visualization_msgs::InteractiveMarkerControl &makeBoxControl(visualization_msgs::InteractiveMarker &msg);
+  void make6DofMarker(std::string name, unsigned int interaction_mode, bool show_6dof);
+  void markerFeedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
+  void PublishPointCloud(pcl::PointCloud<PCType>::Ptr cloud);
+  void loadPointCloud();
 
- public:
-   visualization_msgs::Marker makeBox( visualization_msgs::InteractiveMarker &msg );
-   visualization_msgs::InteractiveMarkerControl& makeBoxControl( visualization_msgs::InteractiveMarker &msg );
-   void make6DofMarker( std::string name, unsigned int interaction_mode, bool show_6dof );
-   void markerFeedback( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
-   void PublishPointCloud(pcl::PointCloud<PCType>::Ptr cloud);   
-   void loadPointCloud();
+private Q_SLOTS:
+  void loadPointCloudDir();
+  void addMarker();
+  void removeMarker();
+  void saveAnnotation();
+  void switch_marker();
+  void moveToFrame();
+  void loadAnnotation();
 
- private Q_SLOTS:
-   void loadPointCloudDir();
-   void addMarker();
-   void removeMarker();
-   void saveAnnotation();
-   void switch_marker();
-   void moveToFrame();
-   void loadAnnotation();
+private:
+  rviz::VisualizationManager *manager_;
+  rviz::RenderPanel *render_panel_;
 
- private:
-   rviz::VisualizationManager* manager_;
-   rviz::RenderPanel* render_panel_;
+  QLineEdit *move_to_frame;
 
-   QLineEdit* move_to_frame;   
+  //parameters
+  pcl::PointCloud<PCType>::Ptr current_cloud;
+  int device;
+  int num_marker;
+  float pre_marker_x;
+  float pre_marker_y;
+  float pre_marker_z;
+  int num_annotated_cloud;
+  float marker_scale;
 
-   //parameters
-   pcl::PointCloud<PCType>::Ptr current_cloud;
-   int device;
-   int num_marker;
-   float pre_marker_x;
-   float pre_marker_y;
-   float pre_marker_z;
-   int num_annotated_cloud;
-   float marker_scale;
+  std::string marker_mesh_resource;
+  std::string current_marker_type;
+  std::string base_dir;
+  std::vector<std::string> pointcloud_files;
 
-
-   std::string marker_mesh_resource;
-   std::string current_marker_type;
-   std::string base_dir;
-   std::vector<std::string> pointcloud_files;
-
-   ros::NodeHandle nh_;
-   boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
-   std::vector<std::vector<float> > label;
-   ros::Publisher marker_pub;
-   ros::Publisher pointcloud_dataset_pub;
-   ros::Subscriber pointcloud_dataset_sub;
+  ros::NodeHandle nh_;
+  boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
+  std::vector<std::vector<float>> label;
+  ros::Publisher marker_pub;
+  ros::Publisher pointcloud_dataset_pub;
+  ros::Subscriber pointcloud_dataset_sub;
 };
 
 #endif // ANNOTATION_TOOL_H
